@@ -38,8 +38,12 @@ pip install requests
 
 Files
 -----
-WikiFinder.py | main code logic
-README.txt    | this file
+
+| File          | Description      |
+| ------------- | ---------------- |
+| WikiFinder.py | main code logic  |
+| README.txt    | this file        |
+
 
 Future improvements
 -------------------
