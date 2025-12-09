@@ -74,8 +74,6 @@ def valid_links(page_title):
                     if title.startswith("."):
                         #time.sleep(0.2)
                         continue
-
-
                     links.append(title)
 
         cont = data.get("continue")
@@ -87,26 +85,53 @@ def valid_links(page_title):
 
 
 def find_path(start, target):
-    queue = deque([start])
-    visited = {start: None}
-    while queue:
-        current = queue.popleft()
-        #print(current, "\n")
-
-        if current == target:
-            path = []
-            while current is not None:
-                path.append(current)
-                current = visited[current]
-            return path[::-1]
+    queue_s = deque([start])
+    queue_t = deque([target])
+    visited_s = {start: None}
+    visited_t = {target: None}
+    while queue_t and queue_s:
+        current = queue_s.popleft()
         try:
             for nbh in get_links(current):
-                if nbh not in visited:
-                    visited[nbh] = current
-                    queue.append(nbh)
+                if nbh not in visited_s:
+                    visited_s[nbh] = current
+                    queue_s.append(nbh)
+                    if nbh in visited_s:
+                        return intersection(nbh, visited_s, visited_t)
+
+        except TypeError:
+            pass
+
+        current = queue_t.popleft()
+        try:
+            for nbh in get_links(current):
+                if nbh not in visited_t:
+                    visited_t[nbh] = current
+                    queue_t.append(nbh)
+                    if nbh in visited_s:
+                        return intersection(nbh, visited_s, visited_t)
+
         except TypeError:
             pass
     return None
+
+
+def intersection(meet_point, visited_s, visited_t):
+    path_s = []
+    node = meet_point
+    while node is not None:
+        path_s.append(node)
+        node = visited_s[node]
+    path_s.reverse()
+    path_t = []
+    node = visited_t[meet_point]
+    while node is not None:
+        path_t.append(node)
+        node = visited_t[node]
+
+    return path_s + path_t
+
+
 
 while True:
     start = input("Start page (!please input the exact title!): ")
@@ -118,5 +143,3 @@ while True:
         print(e)
         print("Invalid, try again.")
     break
-
-
