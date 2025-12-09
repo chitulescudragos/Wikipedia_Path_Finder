@@ -91,7 +91,7 @@ def find_path(start, target):
     visited = {start: None}
     while queue:
         current = queue.popleft()
-        print(current, "\n")
+        #print(current, "\n")
 
         if current == target:
             path = []
