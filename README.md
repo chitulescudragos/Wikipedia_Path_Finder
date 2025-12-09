@@ -38,8 +38,8 @@ pip install requests
 
 Files
 -----
-WikiFinder.py   # main code logic
-README.txt       # this file
+WikiFinder.py | main code logic
+README.txt    | this file
 
 Future improvements
 -------------------
@@ -55,6 +55,6 @@ This is a prototype intended for learning, experimenting, and exploring Wikipedi
 
 Author
 ------
-Chitulescu Dragoș-Mihai
+Chiţulescu Dragoș-Mihai
 
 Feel free to fork, test, and improve.
