@@ -1,6 +1,6 @@
 import requests
 import time
-
+from collections import deque
 blacklist = (
     "Category:",
     "File:",
@@ -12,9 +12,6 @@ blacklist = (
     "Wikipedia:"
 )
 
-def letter_prio(list_to_shuffle, letter):
-    #leftover from prior version, soon to be deleted
-    return list_to_shuffle
 
 cache = {}
 
@@ -46,7 +43,7 @@ def valid_links(page_title):
         except Exception as e:
             print("Request failed:", e)
             break
-
+        #time.sleep(0.1)
         if response.status_code != 200:
             print("Bad status:", response.status_code)
             break
@@ -72,10 +69,10 @@ def valid_links(page_title):
                     title = title.split("#")[0]
 
                     if title.startswith(blacklist):
-                        time.sleep(0.2)
+                        #time.sleep(0.2)
                         continue
                     if title.startswith("."):
-                        time.sleep(0.2)
+                        #time.sleep(0.2)
                         continue
 
 
@@ -90,11 +87,10 @@ def valid_links(page_title):
 
 
 def find_path(start, target):
-    queue = [start]
-    letter = target[0]
+    queue = deque([start])
     visited = {start: None}
     while queue:
-        current = queue.pop(0)
+        current = queue.popleft()
         print(current, "\n")
 
         if current == target:
@@ -104,7 +100,7 @@ def find_path(start, target):
                 current = visited[current]
             return path[::-1]
         try:
-            for nbh in letter_prio(get_links(current), letter):
+            for nbh in get_links(current):
                 if nbh not in visited:
                     visited[nbh] = current
                     queue.append(nbh)
