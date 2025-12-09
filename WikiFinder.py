@@ -178,7 +178,7 @@ def find_path(start, target):
                     try:
                         fwd_links = get_links(bnbh)
                         if current in set(fwd_links):
-                            verified_backedge.add(pair)
+                            verified_backedges.add(pair)
                             is_true_backedge = False
                         else:
                             is_true_backedge = False
