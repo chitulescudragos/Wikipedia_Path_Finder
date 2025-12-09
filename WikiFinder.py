@@ -96,7 +96,7 @@ def find_path(start, target):
                 if nbh not in visited_s:
                     visited_s[nbh] = current
                     queue_s.append(nbh)
-                    if nbh in visited_s:
+                    if nbh in visited_t:
                         return intersection(nbh, visited_s, visited_t)
 
         except TypeError:
@@ -123,6 +123,7 @@ def intersection(meet_point, visited_s, visited_t):
         path_s.append(node)
         node = visited_s[node]
     path_s.reverse()
+
     path_t = []
     node = visited_t[meet_point]
     while node is not None:
