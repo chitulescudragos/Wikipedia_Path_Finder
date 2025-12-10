@@ -89,7 +89,37 @@ def valid_links(page_title):
             break
         param.update(cont)
 
-    return links
+    return list(set(links))
+
+def is_disambiguation(page_title):
+    URL = "https://en.wikipedia.org/w/api.php"
+    header = {
+        "User-Agent": "WikiFinderBot/0.1 (EDU project; student; chitulescudragos@gmail.com)"
+    }
+
+    param = {
+        "action": "query",
+        "titles": page_title,
+        "prop": "categories",
+        "cllimit": "max",
+        "format": "json",
+    }
+
+    try:
+        response = requests.get(URL, params=param, headers=header, timeout=5)
+        data = response.json()
+    except:
+        return False
+
+    pages = data.get("query", {}).get("pages", {})
+
+    for page in pages.values():
+        categs = page.get("categories", [])
+        for categ in categs:
+            if "disambiguation pages" in categ["title"].lower():
+                return True
+    return False
+
 
 def valid_backlinks(page_title):
     URL = "https://en.wikipedia.org/w/api.php"
@@ -147,7 +177,7 @@ def valid_backlinks(page_title):
             break
         param.update(cont)
 
-    return backlinks
+    return list(set(backlinks))
 
 
 def find_path(start, target):
@@ -156,45 +186,57 @@ def find_path(start, target):
     visited_s = {start: None}
     visited_t = {target: None}
     while queue_t and queue_s:
-        current = queue_s.popleft()
-        try:
-            for nbh in get_links(current):
-                if nbh not in visited_s:
-                    visited_s[nbh] = current
-                    queue_s.append(nbh)
-                    if nbh in visited_t:
-                        return intersection(nbh, visited_s, visited_t)
+        if len(queue_s) <= len(queue_t):
+            current = queue_s.popleft()
 
-        except TypeError:
-            pass
+            if is_disambiguation(current):
+                continue
 
-        current = queue_t.popleft()
-        try:
-            for bnbh in get_backlinks(current):
-                pair = (bnbh, current)
-                if pair in verified_backedges:
-                    is_true_backedge = True
-                else:
-                    try:
-                        fwd_links = get_links(bnbh)
-                        if current in set(fwd_links):
-                            verified_backedges.add(pair)
-                            is_true_backedge = True
-                        else:
-                            is_true_backedge = False
-                    except TypeError:
+            print(current, "\n")
+            try:
+                for nbh in get_links(current):
+                    if nbh not in visited_s:
+                        visited_s[nbh] = current
+                        queue_s.append(nbh)
+                        if nbh in visited_t:
+                            return intersection(nbh, visited_s, visited_t)
+
+            except TypeError:
+                pass
+        else:
+            current = queue_t.popleft()
+
+            if is_disambiguation(current):
+                continue
+
+            print(current, "\n")
+            try:
+                for bnbh in get_backlinks(current):
+                    print(bnbh, "\n")
+                    pair = (bnbh, current)
+                    if pair in verified_backedges:
+                        is_true_backedge = True
+                    else:
+                        try:
+                            fwd_links = get_links(bnbh)
+                            if current in set(fwd_links):
+                                verified_backedges.add(pair)
+                                is_true_backedge = True
+                            else:
+                                is_true_backedge = False
+                        except TypeError:
+                            continue
+                    if not is_true_backedge:
                         continue
-                if not is_true_backedge:
-                    continue
-                if bnbh not in visited_t:
-                    visited_t[bnbh] = current
-                    queue_t.append(bnbh)
+                    if bnbh not in visited_t:
+                        visited_t[bnbh] = current
+                        queue_t.append(bnbh)
 
-                    if bnbh in visited_s:
-                        return intersection(bnbh, visited_s, visited_t)
+                        if bnbh in visited_s:
+                            return intersection(bnbh, visited_s, visited_t)
 
-        except TypeError:
-            pass
+            except TypeError:
+                pass
     return None
 
 
@@ -221,6 +263,7 @@ while True:
     target = input("Target page (!please input the exact title!): ")
     try:
         print(find_path(start, target))
+        #print(valid_links("Tree"))
         break
     except Exception as e:
         print(e)
