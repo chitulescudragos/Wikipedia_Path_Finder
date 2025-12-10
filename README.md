@@ -1,64 +1,86 @@
 Wikipedia Path Finder
 =====================
 
-Finds the shortest hyperlink path between two Wikipedia articles using Python and breadth-first search (BFS).
-You give it a starting page and a destination page, and it figures out the shortest chain of links that connects them.
+A Python tool that finds the shortest hyperlink path between two Wikipedia pages.
+Enter a starting page and a target page, and it returns the exact sequence of links connecting them.
 
-What it can do
---------------
-- Gets internal Wikipedia links via the public API
-- Handles pagination (pages with many links)
-- Uses BFS to guarantee the shortest path
-- Works across most Wikipedia pages
-- Designed to be improved and optimized
+What It Does
+------------
+- Queries Wikipedia using the official public API
+- Returns the shortest valid link path (not approximate, not heuristic — *always shortest*)
+- Uses dual-direction BFS (bidirectional search) for significantly reduced search time
+- Eliminates disambiguation pages to avoid meaningless expansions
+- Deduplicates links for better performance
+- Caches visited pages locally in memory during a run to avoid repeated API calls
+- Validates backlink correctness (only accepts real reversals)
+- Handles Wikipedia pagination (max link limits per response)
 
-How it works (short version)
-----------------------------
-1. Start from a given page.
-2. Get every link found on that page.
-3. Explore linked pages level-by-level.
-4. Stop once the target page is found.
-5. Rebuild and print the full path.
+Purpose
+-------
+This project is centered around correctness:
+It **never sacrifices the shortest path guarantee** for speed.
+If the shortest path exists, this tool is designed to find it.
+
+Tradeoff:  
+It *may* take longer than a heuristic or local-graph-based model, but it returns the actual shortest path.
 
 Example
 -------
-From:
-Cristian Cherchez
-To:
-Dâmbovița County
+Input:
+  Start page: Land
+  Target page: Lando Norris
 
-Possible output:
-Cristian Cherchez → AFC Chindia Târgoviște → Dâmbovița County
+Output:
+  Land → International Space Station → United Kingdom → Bristol → Lando Norris
 
-Installing
-----------
-You only need the 'requests' package:
+Tech Summary
+------------
+✔ Official Wikipedia API  
+✔ Forward BFS + Reverse BFS  
+✔ Backlink validation  
+✔ Avoids disambiguation traps  
+✔ Link deduplication  
+✔ On-the-fly caching  
+✔ Guaranteed minimum path length  
 
-pip install requests
+Install
+-------
+Requires the `requests` package.
 
-Files
------
+    pip install requests
 
-| File          | Description      |
-| ------------- | ---------------- |
-| WikiFinder.py | main code logic  |
-| README.txt    | this file        |
+Run
+---
 
+    python WikiFinder.py
 
-Future improvements
+File Overview
+-------------
+WikiFinder.py    # Core implementation
+README.txt       # This documentation
+
+Core Design Choices
 -------------------
-- Caching responses to reduce API calls
-- Bidirectional BFS (much faster)
-- Graph visualization
-- Multiple shortest route options
-- Web interface
+- **Bidirectional BFS** is used because BFS complexity is exponential; meeting in the middle reduces runtime massively
+- **Using backlinks** helps control the search when forward exploration grows too quickly, reducing wasted expansions. 
+- **Deduplication** ensures minimal duplicate state exploration
+- **Excluding disambiguation pages** prevents exponential pollution of the search frontier
+- **Local run-time caching** avoids repeated API fetches within the same execution
+
+Future Improvements
+-------------------
+- Search time optimizations (without losing correctness)
+- On-disk persistent caching (optional mode)
+- Parallel request batching
+- Visualization of routes using graph tools
+- Public web interface / hostable version
 
 Notes
 -----
-This is a prototype intended for learning, experimenting, and exploring Wikipedia's link structure.
+- The program prioritizes correctness over raw speed.
+- It may take longer on long or rare pairings, but its output is guaranteed valid.
+- Designed as a technical exploration tool, not an enterprise-grade search engine.
 
 Author
 ------
-Chiţulescu Dragoș-Mihai
-
-Feel free to fork, test, and improve.
+Dragoș Chițulescu
